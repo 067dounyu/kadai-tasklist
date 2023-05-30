@@ -2,8 +2,10 @@ package controllers;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import DAO.DBUtil;
 import models.DTO;
+import models.validators.DTOValidator;
 
 /**
  * Servlet implementation class UpdateServlet
@@ -47,6 +50,19 @@ public class UpdateServlet extends HttpServlet {
             Timestamp currentTime = new Timestamp(System.currentTimeMillis());
             m.setUpdated_at(currentTime);       // 更新日時のみ上書き
 
+            // バリデーションを実行してエラーがあったら編集画面のフォームに戻る
+            List<String> errors = DTOValidator.validate(m);
+            if(errors.size() > 0) {
+                em.close();
+
+                // フォームに初期値を設定、さらにエラーメッセージを送る
+                request.setAttribute("_token", request.getSession().getId());
+                request.setAttribute("task", m);
+                request.setAttribute("errors", errors);
+
+                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/tasks/edit.jsp");
+                rd.forward(request, response);
+            } else {
             // データベースを更新
             em.getTransaction().begin();
             em.getTransaction().commit();
@@ -60,4 +76,5 @@ public class UpdateServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/index");
         }
     }
+}
 }
