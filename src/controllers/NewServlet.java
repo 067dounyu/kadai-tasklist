@@ -46,11 +46,6 @@ public class NewServlet extends HttpServlet {
         // Messageのインスタンスを生成
         DTO m = new DTO();
 
-
-
-        String content = "hello";
-        m.setContent(content);
-
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());     // 現在の日時を取得
         m.setCreated_at(currentTime);
         m.setUpdated_at(currentTime);
